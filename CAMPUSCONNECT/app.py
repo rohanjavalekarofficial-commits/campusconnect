@@ -9,6 +9,8 @@ import secrets
 
 from models import db, User, Student, Teacher, Lab, LabBooking, InteractiveClass, InteractiveClassBooking, Message, Notification, SystemLog
 from tasks import start_scheduler
+import secrets
+from flask import abort
 
 app = Flask(__name__, instance_relative_config=True)
 
@@ -250,12 +252,12 @@ def register():
             return jsonify({'success': False, 'message': 'Password must be at least 6 characters'}), 400
 
         try:
-            if role == 'student':
-                user = Student(email=email, full_name=full_name)
-            elif role == 'teacher':
-                user = Teacher(email=email, full_name=full_name)
-            else:
-                return jsonify({'success': False, 'message': 'Invalid role'}), 400
+            # Only student registrations are allowed through public signup.
+            # Teacher and admin accounts must be created by an administrator.
+            if role != 'student':
+                return jsonify({'success': False, 'message': 'Registration allowed for students only. Teacher accounts must be created by an admin.'}), 400
+
+            user = Student(email=email, full_name=full_name)
 
             user.set_password(password)
             db.session.add(user)
@@ -1083,6 +1085,35 @@ def ensure_db_schema():
         if 'started_sent' not in interactive_columns:
             db.session.execute(text('ALTER TABLE interactive_class_booking ADD COLUMN started_sent BOOLEAN DEFAULT 0'))
             db.session.commit()
+
+
+# One-time admin creation endpoint (protected by token)
+@app.route('/internal/create-admin', methods=['POST'])
+def internal_create_admin():
+    token = request.args.get('token') or request.headers.get('X-Admin-Token')
+    expected = os.environ.get('ONE_TIME_ADMIN_TOKEN')
+    if not expected or not token or token != expected:
+        abort(403)
+
+    data = request.get_json() or {}
+    email = data.get('email', 'admin@vvce.ac.in')
+    password = data.get('password', 'admin123')
+    full_name = data.get('full_name', 'Admin User')
+
+    with app.app_context():
+        if User.query.filter_by(email=email).first():
+            return jsonify({'success': False, 'message': 'Admin already exists.'}), 400
+
+        admin = User(email=email, full_name=full_name, role='admin')
+        admin.set_password(password)
+        db.session.add(admin)
+        db.session.commit()
+
+        log = SystemLog(action='admin_created', user_id=admin.id, details=f'Admin created: {email}')
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'success': True, 'email': email}), 201
 
 
 if __name__ == '__main__':
