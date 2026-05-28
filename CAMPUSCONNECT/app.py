@@ -1168,3 +1168,4 @@ def internal_debug_users():
     with app.app_context():
         users = User.query.with_entities(User.email, User.role, User.created_at).all()
         return jsonify([{'email': u.email, 'role': u.role, 'created_at': u.created_at.strftime('%Y-%m-%d %H:%M:%S') if u.created_at else None} for u in users])
+
