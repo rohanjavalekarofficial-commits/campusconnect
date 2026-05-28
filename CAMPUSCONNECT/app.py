@@ -29,6 +29,9 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # Initialize extensions
 db.init_app(app)
 
+# Make sessions permanent by default (helps persistence across reloads)
+app.config.setdefault('PERMANENT_SESSION_LIFETIME', timedelta(days=7))
+
 # Simple session configuration for Vercel
 try:
     from flask_session import Session
