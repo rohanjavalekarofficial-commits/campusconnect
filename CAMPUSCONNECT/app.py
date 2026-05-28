@@ -1171,6 +1171,26 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
         ensure_db_schema()
+        # Ensure basic accounts exist after deploy so users can log in (idempotent)
+        try:
+            if User.query.filter_by(email='admin@vvce.ac.in').first() is None:
+                admin = User(email='admin@vvce.ac.in', full_name='Admin User', role='admin')
+                admin.set_password('admin123')
+                db.session.add(admin)
+
+            if Teacher.query.filter_by(email='teacher1@vvce.ac.in').first() is None:
+                teacher = Teacher(email='teacher1@vvce.ac.in', full_name='Test Teacher')
+                teacher.set_password('teacher123')
+                db.session.add(teacher)
+
+            if Student.query.filter_by(email='student1@vvce.ac.in').first() is None:
+                student = Student(email='student1@vvce.ac.in', full_name='Test Student')
+                student.set_password('student123')
+                db.session.add(student)
+
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
     app.run(debug=True, host='0.0.0.0', port=5000)
 
 
