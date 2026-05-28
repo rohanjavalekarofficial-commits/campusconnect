@@ -1160,3 +1160,11 @@ if __name__ == '__main__':
         db.create_all()
         ensure_db_schema()
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+
+# Temporary debug endpoint to list users (email and role) for production verification
+@app.route('/internal/debug-users', methods=['GET'])
+def internal_debug_users():
+    with app.app_context():
+        users = User.query.with_entities(User.email, User.role, User.created_at).all()
+        return jsonify([{'email': u.email, 'role': u.role, 'created_at': u.created_at.strftime('%Y-%m-%d %H:%M:%S') if u.created_at else None} for u in users])
