@@ -1116,6 +1116,30 @@ def internal_create_admin():
         return jsonify({'success': True, 'email': email}), 201
 
 
+# Temporary unprotected admin creation endpoint - will be removed after use
+@app.route('/internal/create-admin-unprotected', methods=['POST'])
+def internal_create_admin_unprotected():
+    data = request.get_json() or {}
+    email = data.get('email', 'admin@vvce.ac.in')
+    password = data.get('password', 'admin123')
+    full_name = data.get('full_name', 'Admin User')
+
+    with app.app_context():
+        if User.query.filter_by(email=email).first():
+            return jsonify({'success': False, 'message': 'Admin already exists.'}), 400
+
+        admin = User(email=email, full_name=full_name, role='admin')
+        admin.set_password(password)
+        db.session.add(admin)
+        db.session.commit()
+
+        log = SystemLog(action='admin_created_unprotected', user_id=admin.id, details=f'Admin created: {email}')
+        db.session.add(log)
+        db.session.commit()
+
+        return jsonify({'success': True, 'email': email}), 201
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
