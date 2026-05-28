@@ -274,6 +274,27 @@
                 <a href="/logout" class="logout-btn">Logout</a>
             </div>
         </div>
+    </div>
+
+    <script>
+        function toggleMobileMenu(open) {
+            const sb = document.querySelector('.sidebar');
+            const ov = document.getElementById('mobile-overlay');
+            if (!sb) return;
+            if (open === undefined) open = !sb.classList.contains('open-mobile');
+            if (open) {
+                sb.classList.add('open-mobile');
+                if (ov) ov.classList.add('show');
+            } else {
+                sb.classList.remove('open-mobile');
+                if (ov) ov.classList.remove('show');
+            }
+        }
+        document.addEventListener('click', function(e){
+            if (e.target.closest('#mobile-menu-btn')) toggleMobileMenu(true);
+            if (e.target.closest('.sidebar a')) toggleMobileMenu(false);
+        });
+    </script>
         
         <!-- DASHBOARD TAB -->
         <div id="dashboard" class="tab-content active">
