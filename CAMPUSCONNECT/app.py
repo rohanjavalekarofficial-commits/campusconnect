@@ -32,7 +32,13 @@ db.init_app(app)
 # Simple session configuration for Vercel
 try:
     from flask_session import Session
-    Session(app)
+    # Use server-side sessions only when explicitly enabled via env var.
+    # Default: use Flask's signed cookie sessions (more reliable on ephemeral hosts).
+    if os.environ.get('USE_SERVER_SESSION') == '1':
+        app.config['SESSION_TYPE'] = os.environ.get('SESSION_TYPE', 'filesystem')
+        app.config.setdefault('SESSION_FILE_DIR', os.path.join(app.instance_path, 'flask_session_files'))
+        os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
+        Session(app)
 except ImportError:
     pass
 
@@ -290,6 +296,9 @@ def login():
             session['email'] = user.email
             session['role'] = user.role
             session['full_name'] = user.full_name
+
+            # Make session permanent so it persists across browser restarts (uses PERMANENT_SESSION_LIFETIME)
+            session.permanent = True
 
             # Log the action
             log = SystemLog(action='user_login', user_id=user.id, details=f'User logged in: {email}')

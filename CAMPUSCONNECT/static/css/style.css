@@ -457,3 +457,54 @@ small {
     /* Prevent overflowing large elements */
     img, .table-custom, .card-custom { max-width: 100%; height: auto; }
 }
+
+/* Mobile hamburger button */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1200;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid var(--border);
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    cursor: pointer;
+}
+.mobile-menu-btn span { font-size: 18px; color: var(--primary); }
+
+@media (max-width: 768px) {
+    .mobile-menu-btn { display: flex; }
+
+    /* Sidebar hidden by default on mobile, slides in when .open-mobile is set */
+    .sidebar {
+        transform: translateX(-110%);
+        transition: transform 0.25s ease;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 260px;
+        background: white;
+        z-index: 1150;
+        overflow-y: auto;
+        box-shadow: 2px 0 20px rgba(0,0,0,0.08);
+    }
+
+    .sidebar.open-mobile { transform: translateX(0); }
+
+    /* Dim page when sidebar open */
+    .overlay-mobile {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1140;
+    }
+
+    .overlay-mobile.show { display: block; }
+}
