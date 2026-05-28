@@ -1116,39 +1116,8 @@ def internal_create_admin():
         return jsonify({'success': True, 'email': email}), 201
 
 
-# Temporary unprotected endpoint to create teacher and student accounts
-@app.route('/internal/create-users-unprotected', methods=['POST'])
-def internal_create_users_unprotected():
-    data = request.get_json() or {}
-    users = data.get('users', [])
-    created = []
-    with app.app_context():
-        for u in users:
-            email = u.get('email')
-            password = u.get('password')
-            full_name = u.get('full_name', '')
-            role = u.get('role', 'student')
+    
 
-            if not email or User.query.filter_by(email=email).first():
-                continue
-
-            if role == 'student':
-                user = Student(email=email, full_name=full_name)
-            elif role == 'teacher':
-                user = Teacher(email=email, full_name=full_name)
-            else:
-                user = User(email=email, full_name=full_name, role=role)
-
-            user.set_password(password)
-            db.session.add(user)
-            db.session.commit()
-
-            log = SystemLog(action='user_created_unprotected', user_id=user.id, details=f'Created {role}: {email}')
-            db.session.add(log)
-            db.session.commit()
-            created.append({'email': email, 'role': role})
-
-    return jsonify({'created': created}), 201
 
 
 
