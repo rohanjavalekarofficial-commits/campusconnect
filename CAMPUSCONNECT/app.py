@@ -31,6 +31,10 @@ db.init_app(app)
 
 # Make sessions permanent by default (helps persistence across reloads)
 app.config.setdefault('PERMANENT_SESSION_LIFETIME', timedelta(days=7))
+# Cookie settings for security and cross-refresh persistence behind HTTPS
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Simple session configuration for Vercel
 try:
