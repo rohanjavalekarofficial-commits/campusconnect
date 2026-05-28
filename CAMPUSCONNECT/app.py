@@ -1115,6 +1115,37 @@ def internal_create_admin():
 
         return jsonify({'success': True, 'email': email}), 201
 
+# Temporary seeding endpoint (creates admin, teacher, student). Keep until you confirm logins.
+@app.route('/internal/seed-users', methods=['POST'])
+def internal_seed_users():
+    with app.app_context():
+        created = []
+        # Admin
+        if not User.query.filter_by(email='admin@vvce.ac.in').first():
+            admin = User(email='admin@vvce.ac.in', full_name='Admin User', role='admin')
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            created.append({'email': 'admin@vvce.ac.in', 'role': 'admin'})
+
+        # Teacher
+        if not Teacher.query.filter_by(email='teacher1@vvce.ac.in').first():
+            teacher = Teacher(email='teacher1@vvce.ac.in', full_name='Test Teacher')
+            teacher.set_password('teacher123')
+            db.session.add(teacher)
+            db.session.commit()
+            created.append({'email': 'teacher1@vvce.ac.in', 'role': 'teacher'})
+
+        # Student
+        if not Student.query.filter_by(email='student1@vvce.ac.in').first():
+            student = Student(email='student1@vvce.ac.in', full_name='Test Student')
+            student.set_password('student123')
+            db.session.add(student)
+            db.session.commit()
+            created.append({'email': 'student1@vvce.ac.in', 'role': 'student'})
+
+    return jsonify({'created': created}), 201
+
 
     
 
