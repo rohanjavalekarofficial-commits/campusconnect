@@ -411,3 +411,49 @@ small {
         width: 95%;
     }
 }
+
+
+/* Additional mobile-friendly overrides for templates */
+@media (max-width: 768px) {
+    /* Sidebar becomes stacked above content */
+    .sidebar {
+        position: relative !important;
+        width: 100% !important;
+        min-height: auto !important;
+        height: auto !important;
+        border-right: none !important;
+        padding: 12px !important;
+    }
+
+    .sidebar-logo h3 { font-size: 16px; }
+
+    .sidebar-menu a { padding: 10px 12px; }
+
+    /* Main content should not be offset on small screens */
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px !important;
+    }
+
+    .topbar {
+        padding: 12px !important;
+        margin-bottom: 16px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px;
+    }
+
+    /* Tighten cards and auth container */
+    .auth-container { padding: 12px; }
+    .auth-card { padding: 20px; border-radius: 12px; }
+
+    /* Reduce table paddings and font sizes for smaller viewports */
+    .table-custom td, .table-custom th { padding: 6px; font-size: 13px; }
+
+    /* Buttons and inputs full width on mobile */
+    .btn-auth, .btn-custom { width: 100%; }
+    .form-control, .input-custom { width: 100%; }
+
+    /* Prevent overflowing large elements */
+    img, .table-custom, .card-custom { max-width: 100%; height: auto; }
+}
