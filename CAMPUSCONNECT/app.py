@@ -29,6 +29,33 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # Initialize extensions
 db.init_app(app)
 
+# Initialize database and seed users on app startup
+def init_db():
+    """Initialize database and seed default users (idempotent)"""
+    with app.app_context():
+        db.create_all()
+        try:
+            if User.query.filter_by(email='admin@vvce.ac.in').first() is None:
+                admin = User(email='admin@vvce.ac.in', full_name='Admin User', role='admin')
+                admin.set_password('admin123')
+                db.session.add(admin)
+
+            if Teacher.query.filter_by(email='teacher1@vvce.ac.in').first() is None:
+                teacher = Teacher(email='teacher1@vvce.ac.in', full_name='Test Teacher', role='teacher')
+                teacher.set_password('teacher123')
+                db.session.add(teacher)
+
+            if Student.query.filter_by(email='student1@vvce.ac.in').first() is None:
+                student = Student(email='student1@vvce.ac.in', full_name='Test Student', role='student')
+                student.set_password('student123')
+                db.session.add(student)
+
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
+init_db()
+
 # Make sessions permanent by default (helps persistence across reloads)
 app.config.setdefault('PERMANENT_SESSION_LIFETIME', timedelta(days=7))
 # Cookie settings for security and cross-refresh persistence behind HTTPS
